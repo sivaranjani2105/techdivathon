@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rakshak OS | Optics Mode</title>
+    <meta name="description" content="RAKSHAK OS — AR Heads-Up Display Optics Mode">
+    <meta name="theme-color" content="#007080">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RAKSHAK OS">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+    <style>
+        :root {
+            --accent-cyan: #00f3ff;
+            --accent-red: #ff0044;
+            --accent-green: #00ffaa;
+            --accent-gold: #ffcc00;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        body {
+            background: #000;
+            color: var(--accent-cyan);
+            overflow: hidden;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #camera-feed {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 1;
+            filter: contrast(1.2) brightness(0.9) sepia(0.2) hue-rotate(-10deg);
+        }
+
+        /* Scanline Overlay */
+        .hud-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            background: linear-gradient(rgba(0, 243, 255, 0.03) 50%, transparent 50%);
+            background-size: 100% 4px;
+            animation: scanline 10s linear infinite;
+        }
+
+        @keyframes scanline {
+            from {
+                background-position: 0 0;
+            }
+
+            to {
+                background-position: 0 100%;
+            }
+        }
+
+        /* Crosshair */
+        .crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            z-index: 3;
+            opacity: 0.6;
+        }
+
+        .crosshair::before,
+        .crosshair::after {
+            content: '';
+            position: absolute;
+            background: var(--accent-cyan);
+        }
+
+        .crosshair::before {
+            left: 0;
+            top: 50%;
+            width: 100%;
+            height: 1px;
+        }
+
+        .crosshair::after {
+            left: 50%;
+            top: 0;
+            width: 1px;
+            height: 100%;
+        }
+
+        /* HUD Elements */
+        .hud-corner {
+            position: fixed;
+            padding: 30px;
+            z-index: 4;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.5);
+        }
+
+        .top-left {
+            top: 0;
+            left: 0;
+            border-left: 2px solid var(--accent-cyan);
+            border-top: 2px solid var(--accent-cyan);
+            margin: 20px;
+        }
+
+        .top-right {
+            top: 0;
+            right: 0;
+            border-right: 2px solid var(--accent-cyan);
+            border-top: 2px solid var(--accent-cyan);
+            margin: 20px;
+            text-align: right;
+        }
+
+        .bottom-left {
+            bottom: 0;
+            left: 0;
+            border-left: 2px solid var(--accent-cyan);
+            border-bottom: 2px solid var(--accent-cyan);
+            margin: 20px;
+        }
+
+        .bottom-right {
+            bottom: 0;
+            right: 0;
+            border-right: 2px solid var(--accent-cyan);
+            border-bottom: 2px solid var(--accent-cyan);
+            margin: 20px;
+            text-align: right;
+        }
+
+        .status-tag {
+            color: var(--accent-green);
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 10;
+            background: rgba(0, 243, 255, 0.1);
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 12px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 2px;
+        }
+
+        .back-btn:hover {
+            background: var(--accent-cyan);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent-cyan);
+        }
+
+        .warning-flash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 5px solid var(--accent-red);
+            z-index: 5;
+            pointer-events: none;
+            opacity: 0;
+            animation: flash 2s infinite;
+        }
+
+        @keyframes flash {
+
+            0%,
+            100% {
+                opacity: 0;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <video id="camera-feed" autoplay playsinline muted></video>
+    <div class="hud-overlay"></div>
+    <div class="warning-flash"></div>
+    <div class="crosshair"></div>
+
+    <div class="hud-corner top-left">
+        <div class="status-tag">LINK ACTIVE</div>
+        <div>OPTICS: N-VIS ENGAGED</div>
+        <div id="timestamp">00:00:00</div>
+    </div>
+
+    <div class="hud-corner top-right">
+        <div style="color: var(--accent-gold)">BATTERY: 92%</div>
+        <div>TEMP: 34.2°C</div>
+        <div>SIGNAL: 100%</div>
+    </div>
+
+    <div class="hud-corner bottom-left">
+        <div>CODENAME: RAKSHAK-01</div>
+        <div style="font-size: 0.6rem; opacity: 0.6; margin-top:5px;">SECURE CHANNEL: #0x7F22</div>
+    </div>
+
+    <div class="hud-corner bottom-right">
+        <div style="font-size: 1.2rem;" id="speed">42 KM/H</div>
+        <div style="font-size: 0.6rem; opacity: 0.6;">CURRENT SECTOR: 7-G</div>
+    </div>
+
+    <button class="back-btn" onclick="window.location.href='rakshak.html'">Return to Command Center</button>
+
+    <script>
+        let lastTelemetry = { battery: 92, speed: 0, temp: 34.2 };
+
+        async function initCamera() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' },
+                    audio: false
+                });
+                document.getElementById('camera-feed').srcObject = stream;
+            } catch (err) {
+                console.error("Camera access failed", err);
+                // Fail silently or show dummy stream in staging
+            }
+        }
+
+        function updateHUD() {
+            // Real-time Standardized UTC/Local Time
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2, '0') + ":" +
+                now.getMinutes().toString().padStart(2, '0') + ":" +
+                now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('timestamp').innerText = timeStr;
+
+            // Sync with Dashboard Telemetry
+            const raw = localStorage.getItem('rakshak_telemetry');
+            if (raw) {
+                const data = JSON.parse(raw);
+                lastTelemetry = data;
+            }
+
+            // Update UI Elements
+            document.getElementById('speed').innerText = lastTelemetry.speed + " KM/H";
+
+            const batteryEl = document.querySelector('.top-right div:nth-child(1)');
+            if (batteryEl) {
+                batteryEl.innerText = `BATTERY: ${lastTelemetry.battery}%`;
+                batteryEl.style.color = lastTelemetry.battery < 20 ? 'var(--accent-red)' : 'var(--accent-gold)';
+            }
+
+            const tempEl = document.querySelector('.top-right div:nth-child(2)');
+            if (tempEl) tempEl.innerText = `TEMP: ${lastTelemetry.temp}°C`;
+
+            // Flash effect for critical states
+            const flasher = document.querySelector('.warning-flash');
+            if (flasher) {
+                flasher.style.opacity = (lastTelemetry.speed > 100 || lastTelemetry.battery < 20) ? '0.3' : '0';
+            }
+        }
+
+        // High-frequency sync loop
+        setInterval(updateHUD, 100);
+        window.onload = initCamera;
+    </script>
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('[RAKSHAK] Service Worker registered:', reg.scope))
+                .catch(err => console.error('[RAKSHAK] SW registration failed:', err));
+        }
+    </script>
+</body>
+
+</html>

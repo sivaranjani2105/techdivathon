@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAKSHAK OS | ADMIN CENTER</title>
+    <meta name="description" content="RAKSHAK OS — Fleet Management and Operator Admin Center">
+    <meta name="theme-color" content="#007080">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RAKSHAK OS">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --accent-cyan: #007080;
+            --accent-red: #d90033;
+            --accent-gold: #c79400;
+            --accent-green: #00805a;
+            --bg-deep: #f0f4f8;
+            --text-main: #1a202c;
+            --text-muted: #4a5568;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(0, 112, 128, 0.15);
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Share Tech Mono', monospace;
+            margin: 0;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 2px solid var(--accent-cyan);
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.6);
+            border-radius: 12px;
+        }
+
+        .header h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.5rem;
+            letter-spacing: 5px;
+            color: var(--accent-cyan);
+            margin: 0;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            backdrop-filter: blur(10px);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--accent-cyan);
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.9rem;
+            color: var(--accent-cyan);
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .unit-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .unit-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px;
+            background: rgba(0, 112, 128, 0.04);
+            border-radius: 8px;
+            margin-bottom: 10px;
+            transition: all 0.3s;
+            border: 1px solid transparent;
+        }
+
+        .unit-item:hover {
+            background: rgba(0, 112, 128, 0.08);
+            border-color: var(--glass-border);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .badge {
+            font-size: 0.6rem;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+
+        .badge-active {
+            background: rgba(0, 128, 90, 0.12);
+            color: #00805a;
+        }
+
+        .badge-admin {
+            background: rgba(199, 148, 0, 0.15);
+            color: var(--accent-gold);
+        }
+
+        .log-viewport {
+            height: 300px;
+            overflow-y: auto;
+            font-size: 0.75rem;
+            line-height: 1.6;
+        }
+
+        .log-entry {
+            margin-bottom: 8px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+            padding-bottom: 4px;
+        }
+
+        .timestamp {
+            color: var(--text-muted);
+            margin-right: 10px;
+        }
+
+        .lvl-critical {
+            color: var(--accent-red);
+            font-weight: bold;
+        }
+
+        .lvl-success {
+            color: #00805a;
+        }
+
+        .lvl-warning {
+            color: var(--accent-gold);
+            font-weight: bold;
+        }
+
+        .lvl-info {
+            color: var(--accent-cyan);
+        }
+
+        .btn {
+            background: transparent;
+            border: 1px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 8px 15px;
+            font-family: 'Orbitron';
+            font-size: 0.7rem;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            background: var(--accent-cyan);
+            color: white;
+        }
+
+        #global-telemetry {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .stat-box {
+            text-align: center;
+            padding: 15px;
+            background: rgba(0, 112, 128, 0.06);
+            border-radius: 8px;
+        }
+
+        .stat-val {
+            font-size: 1.5rem;
+            color: var(--accent-cyan);
+            display: block;
+        }
+
+        .stat-lbl {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .form-group {
+            margin-bottom: 14px;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.6rem;
+            letter-spacing: 1.5px;
+            color: var(--accent-cyan);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 10px 12px;
+            background: rgba(0, 112, 128, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: var(--text-main);
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8rem;
+            outline: none;
+            transition: border-color 0.3s, box-shadow 0.3s;
+        }
+
+        .form-input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 3px rgba(0, 112, 128, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            opacity: 0.5;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .btn-create {
+            background: var(--accent-cyan);
+            border: none;
+            color: white;
+            padding: 12px 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 2px;
+            cursor: pointer;
+            border-radius: 6px;
+            transition: all 0.3s;
+            width: 100%;
+            margin-top: 8px;
+            font-weight: bold;
+        }
+
+        .btn-create:hover {
+            background: #005a66;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(0, 112, 128, 0.3);
+        }
+
+        .btn-create:active {
+            transform: translateY(0);
+        }
+
+        .form-status {
+            font-size: 0.7rem;
+            margin-top: 10px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: none;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .form-status.success {
+            display: block;
+            background: rgba(0, 128, 90, 0.1);
+            color: #00805a;
+            border: 1px solid rgba(0, 128, 90, 0.2);
+        }
+
+        .form-status.error {
+            display: block;
+            background: rgba(217, 0, 51, 0.1);
+            color: var(--accent-red);
+            border: 1px solid rgba(217, 0, 51, 0.2);
+        }
+
+        .btn-delete {
+            background: transparent;
+            border: 1px solid var(--accent-red);
+            color: var(--accent-red);
+            padding: 2px 8px;
+            font-size: 0.5rem;
+            font-family: 'Orbitron';
+            cursor: pointer;
+            border-radius: 4px;
+            margin-left: 5px;
+            transition: 0.3s;
+        }
+
+        .btn-delete:hover {
+            background: var(--accent-red);
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <h1>RAKSHAK COMMAND CENTER</h1>
+        <div style="text-align: right;">
+            <div style="font-size: 0.8rem; color: var(--accent-gold);">AUTH: MISSION CONTROL</div>
+            <div style="font-size: 0.6rem; opacity: 0.5;">UPLINK STABLE | NODE_7G</div>
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <!-- Active Units -->
+        <div class="card">
+            <h2 class="section-title">Active Field Units</h2>
+            <div id="unit-container" class="unit-list">
+                <!-- Units loaded via JS -->
+            </div>
+        </div>
+
+        <!-- Global System Logs -->
+        <div class="card">
+            <h2 class="section-title">Aggregated Mission Logs</h2>
+            <div id="admin-logs" class="log-viewport">
+                <!-- Logs generated via JS -->
+            </div>
+        </div>
+
+        <!-- Global Telemetry -->
+        <div class="card">
+            <h2 class="section-title">Global Fleet Status</h2>
+            <div id="global-telemetry">
+                <div class="stat-box">
+                    <span class="stat-val" id="total-units">0</span>
+                    <span class="stat-lbl">Active Units</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val" id="avg-battery">0%</span>
+                    <span class="stat-lbl">Avg Fleet Battery</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val" id="network-load">12%</span>
+                    <span class="stat-lbl">Mesh Network Load</span>
+                </div>
+                <div class="stat-box">
+                    <span class="stat-val" id="threat-level" style="color: var(--accent-gold);">LOW</span>
+                    <span class="stat-lbl">Threat Level</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Protocols -->
+        <div class="card">
+            <h2 class="section-title">System Protocols</h2>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn" onclick="broadcastAlert()">BROADCAST ALERT</button>
+                <button class="btn" style="border-color: var(--accent-red); color: var(--accent-red);"
+                    onclick="protocolZero()">PROTOCOL ZERO</button>
+                <button class="btn" style="border-color: #555; color: #555;"
+                    onclick="window.location.href='landing.html'">DISCONNECT</button>
+            </div>
+        </div>
+
+        <!-- Register New Operator -->
+        <div class="card">
+            <h2 class="section-title">Register New Operator</h2>
+            <form id="create-operator-form" onsubmit="createOperator(event)">
+                <div class="form-group">
+                    <label>Codename</label>
+                    <input type="text" class="form-input" id="new-codename" placeholder="e.g. SHADOW-SIX" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Rank</label>
+                        <input type="text" class="form-input" id="new-rank" placeholder="e.g. SERGEANT" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role</label>
+                        <select class="form-input" id="new-role">
+                            <option value="OPERATOR">OPERATOR</option>
+                            <option value="ADMIN">ADMIN</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Department</label>
+                        <select class="form-input" id="new-department">
+                            <option value="TACTICAL">TACTICAL OPERATIONS</option>
+                            <option value="STRATEGIC">STRATEGIC COMMAND</option>
+                            <option value="RECON">RECONNAISSANCE</option>
+                            <option value="TECH">TECHNICAL SUPPORT</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Clearance Level</label>
+                        <select class="form-input" id="new-clearance">
+                            <option value="1">Level 1 — Field</option>
+                            <option value="2">Level 2 — Recon</option>
+                            <option value="3" selected>Level 3 — Tactical</option>
+                            <option value="4">Level 4 — Senior</option>
+                            <option value="5">Level 5 — Command</option>
+                        </select>
+                    </div>
+                </div>
+                <button type="submit" class="btn-create">DEPLOY OPERATOR</button>
+                <div class="form-status" id="form-status"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // === LOCAL STORAGE OPERATOR MANAGEMENT ===
+        const STORAGE_KEY = 'rakshak_operators';
+        const LOGS_KEY = 'rakshak_admin_logs';
+
+        // Default operators if none exist
+        const DEFAULT_OPERATORS = [
+            { id: 1, codename: 'RAKSHAK-01', rank: 'ELITE RECON', role: 'ADMIN', department: 'TACTICAL', clearance_level: 5, status: 'ACTIVE' },
+            { id: 2, codename: 'VIPER-03', rank: 'SERGEANT', role: 'OPERATOR', department: 'RECON', clearance_level: 3, status: 'ACTIVE' },
+            { id: 3, codename: 'GHOST-07', rank: 'LIEUTENANT', role: 'OPERATOR', department: 'STRATEGIC', clearance_level: 4, status: 'ACTIVE' },
+            { id: 4, codename: 'PHANTOM-12', rank: 'CORPORAL', role: 'OPERATOR', department: 'TECH', clearance_level: 2, status: 'ACTIVE' }
+        ];
+
+        function getOperators() {
+            try {
+                const data = localStorage.getItem(STORAGE_KEY);
+                return data ? JSON.parse(data) : [...DEFAULT_OPERATORS];
+            } catch { return [...DEFAULT_OPERATORS]; }
+        }
+
+        function saveOperators(operators) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(operators));
+        }
+
+        function addAdminLog(message, level = 'INFO') {
+            const logs = getAdminLogs();
+            logs.unshift({ timestamp: new Date().toISOString(), message, level });
+            if (logs.length > 100) logs.length = 100;
+            localStorage.setItem(LOGS_KEY, JSON.stringify(logs));
+        }
+
+        function getAdminLogs() {
+            try {
+                const data = localStorage.getItem(LOGS_KEY);
+                return data ? JSON.parse(data) : [];
+            } catch { return []; }
+        }
+
+        // === RENDER FUNCTIONS ===
+        function renderUnits() {
+            const operators = getOperators();
+            const container = document.getElementById('unit-container');
+            container.innerHTML = '';
+            document.getElementById('total-units').innerText = operators.length;
+
+            operators.forEach(op => {
+                const item = document.createElement('div');
+                item.className = 'unit-item';
+                item.innerHTML = `
+                    <div>
+                        <div style="font-weight: bold;">${op.codename}</div>
+                        <div style="font-size: 0.6rem; opacity: 0.6;">${op.rank} • ${op.department} • L${op.clearance_level}</div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 5px;">
+                        <span class="badge ${op.role === 'ADMIN' ? 'badge-admin' : 'badge-active'}">${op.role}</span>
+                        <button class="btn" style="padding: 2px 8px; font-size: 0.5rem;" onclick="viewUnit(${op.id})">INTEL</button>
+                        <button class="btn-delete" onclick="deleteOperator(${op.id})">×</button>
+                    </div>
+                `;
+                container.appendChild(item);
+            });
+        }
+
+        function renderLogs() {
+            const logs = getAdminLogs();
+            const logBox = document.getElementById('admin-logs');
+            logBox.innerHTML = '';
+
+            if (logs.length === 0) {
+                // Seed initial logs
+                const seedLogs = [
+                    { level: 'SUCCESS', message: 'System boot sequence completed — all nodes online' },
+                    { level: 'INFO', message: 'RAKSHAK-01 initiated session via neural handshake' },
+                    { level: 'WARNING', message: 'VIPER-03 entered high-threat zone — monitoring active' },
+                    { level: 'INFO', message: 'Mesh network recalibrated — 4 nodes synced' },
+                    { level: 'CRITICAL', message: 'PHANTOM-12 battery critical — 15% remaining' },
+                    { level: 'SUCCESS', message: 'Firmware update deployed to all active helmets' },
+                    { level: 'INFO', message: 'Threat assessment: Sector 7-G rated LOW' },
+                    { level: 'WARNING', message: 'GHOST-07 exceeded speed threshold — 108 km/h' }
+                ];
+                seedLogs.forEach(l => addAdminLog(l.message, l.level));
+                return renderLogs(); // Re-render with seeded logs
+            }
+
+            logs.slice(0, 50).forEach(log => {
+                const entry = document.createElement('div');
+                entry.className = 'log-entry';
+                const time = new Date(log.timestamp).toLocaleTimeString();
+                const lvlClass = `lvl-${log.level.toLowerCase()}`;
+                entry.innerHTML = `<span class="timestamp">[${time}]</span> <span class="${lvlClass}">${log.level}</span>: ${log.message}`;
+                logBox.appendChild(entry);
+            });
+        }
+
+        function updateFleetTelemetry() {
+            const operators = getOperators();
+            // Read telemetry from the main dashboard
+            const raw = localStorage.getItem('rakshak_telemetry');
+            let battery = 85;
+            if (raw) {
+                try {
+                    const data = JSON.parse(raw);
+                    battery = data.battery || 85;
+                } catch { }
+            }
+
+            document.getElementById('total-units').innerText = operators.length;
+            document.getElementById('avg-battery').innerText = Math.floor(battery - Math.random() * 5) + '%';
+            document.getElementById('network-load').innerText = Math.floor(8 + Math.random() * 15) + '%';
+
+            // Threat level based on randomization
+            const threats = ['LOW', 'LOW', 'LOW', 'MODERATE', 'ELEVATED'];
+            const threat = threats[Math.floor(Math.random() * threats.length)];
+            const threatEl = document.getElementById('threat-level');
+            threatEl.innerText = threat;
+            threatEl.style.color = threat === 'LOW' ? 'var(--accent-green)' : (threat === 'MODERATE' ? 'var(--accent-gold)' : 'var(--accent-red)');
+        }
+
+        // === ACTIONS ===
+        function createOperator(e) {
+            e.preventDefault();
+            const statusEl = document.getElementById('form-status');
+            statusEl.className = 'form-status';
+            statusEl.style.display = 'none';
+
+            const codename = document.getElementById('new-codename').value.trim().toUpperCase();
+            const rank = document.getElementById('new-rank').value.trim().toUpperCase();
+            const role = document.getElementById('new-role').value;
+            const department = document.getElementById('new-department').value;
+            const clearance_level = parseInt(document.getElementById('new-clearance').value);
+
+            if (!codename || !rank) {
+                statusEl.className = 'form-status error';
+                statusEl.innerText = 'ERROR: Codename and Rank are required.';
+                statusEl.style.display = 'block';
+                return;
+            }
+
+            const operators = getOperators();
+            const newId = operators.length > 0 ? Math.max(...operators.map(o => o.id)) + 1 : 1;
+            const newOp = { id: newId, codename, rank, role, department, clearance_level, status: 'ACTIVE' };
+            operators.push(newOp);
+            saveOperators(operators);
+
+            addAdminLog(`Operator ${codename} deployed — ID: ${newId}, Clearance: L${clearance_level}`, 'SUCCESS');
+
+            statusEl.className = 'form-status success';
+            statusEl.innerText = `✓ OPERATOR ${codename} DEPLOYED — ID: ${newId}`;
+            statusEl.style.display = 'block';
+
+            document.getElementById('create-operator-form').reset();
+            renderUnits();
+            renderLogs();
+
+            setTimeout(() => { statusEl.style.display = 'none'; }, 5000);
+        }
+
+        function deleteOperator(id) {
+            if (!confirm('CONFIRM: Remove this operator from active roster?')) return;
+            const operators = getOperators().filter(o => o.id !== id);
+            saveOperators(operators);
+            const removed = getOperators();
+            addAdminLog(`Operator ID:${id} removed from active roster`, 'WARNING');
+            renderUnits();
+            renderLogs();
+        }
+
+        function viewUnit(id) {
+            window.location.href = `rakshak.html`;
+        }
+
+        function broadcastAlert() {
+            addAdminLog('BROADCAST: All-channel alert dispatched to fleet', 'CRITICAL');
+            renderLogs();
+            alert('ALL UNITS ALERTED — Signal broadcast on all channels');
+        }
+
+        function protocolZero() {
+            if (confirm('⚠ TRIGGER PROTOCOL ZERO?\nThis will broadcast emergency signal to all nodes.')) {
+                addAdminLog('PROTOCOL ZERO ACTIVATED — Emergency signal broadcasting', 'CRITICAL');
+                renderLogs();
+            }
+        }
+
+        // === SIMULATED LOG GENERATION ===
+        function generateRandomLog() {
+            const messages = [
+                { msg: 'Mesh node heartbeat — all nodes responding', lvl: 'INFO' },
+                { msg: 'Telemetry sync completed — fleet nominal', lvl: 'SUCCESS' },
+                { msg: 'Perimeter scan cycle — no anomalies detected', lvl: 'INFO' },
+                { msg: 'Firmware integrity check passed', lvl: 'SUCCESS' },
+                { msg: 'High-frequency interference detected on channel 4', lvl: 'WARNING' },
+                { msg: 'GPS recalibration completed for all units', lvl: 'INFO' },
+                { msg: 'Sector 7-G movement detected — analyzing', lvl: 'WARNING' },
+                { msg: 'Neural link latency within acceptable range', lvl: 'SUCCESS' }
+            ];
+            const log = messages[Math.floor(Math.random() * messages.length)];
+            addAdminLog(log.msg, log.lvl);
+            renderLogs();
+        }
+
+        // === INIT ===
+        window.onload = function () {
+            // Initialize operators in localStorage if not present
+            if (!localStorage.getItem(STORAGE_KEY)) {
+                saveOperators(DEFAULT_OPERATORS);
+            }
+
+            renderUnits();
+            renderLogs();
+            updateFleetTelemetry();
+
+            // Periodic updates
+            setInterval(updateFleetTelemetry, 5000);
+            setInterval(generateRandomLog, 15000);
+        };
+    </script>
+    <!-- PWA Service Worker Registration -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('[RAKSHAK] Service Worker registered:', reg.scope))
+                .catch(err => console.error('[RAKSHAK] SW registration failed:', err));
+        }
+    </script>
+</body>
+
+</html>

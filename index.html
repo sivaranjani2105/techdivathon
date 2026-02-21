@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rakshak Smart Helmet | Dashboard</title>
+    <meta name="description" content="RAKSHAK OS — AI-powered Smart Helmet Tactical Dashboard">
+    <meta name="theme-color" content="#007080">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RAKSHAK OS">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.svg">
+    <style>
+        :root {
+            --bg-primary: #f0f4f8;
+            --accent-cyan: #007080;
+            --secondary-cyan: #005a66;
+            --accent-red: #ff0044;
+            --accent-green: #00ffaa;
+            --accent-gold: #ffcc00;
+            --glass-bg: rgba(255, 255, 255, 0.85);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --text-main: #1a202c;
+            --text-muted: #4a5568;
+            --text-glow: 0 0 4px rgba(0, 112, 128, 0.1);
+            --emergency-glow: 0 0 15px rgba(255, 0, 68, 0.6);
+            --panel-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        @font-face {
+            font-family: 'Orbitron';
+            src: url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Orbitron', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* Global Aesthetic Polish: Tactical Grain & CRT Scanlines */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%),
+                linear-gradient(90deg, rgba(255, 0, 0, 0.02), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.02));
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+            z-index: 9999;
+            opacity: 0.15;
+            mix-blend-mode: overlay;
+        }
+
+        body::after {
+            content: "";
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("https://www.transparenttextures.com/patterns/stardust.png");
+            opacity: 0.02;
+            pointer-events: none;
+            z-index: 10000;
+            filter: contrast(120%);
+        }
+
+        body {
+            background-color: var(--bg-primary);
+            background-image:
+                radial-gradient(circle at 50% 50%, rgba(0, 243, 255, 0.05) 0%, transparent 70%),
+                linear-gradient(rgba(10, 15, 20, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(10, 15, 20, 0.1) 1px, transparent 1px);
+            background-size: 100% 100%, 30px 30px, 30px 30px;
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            letter-spacing: 0.5px;
+        }
+
+        header {
+            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logo-box {
+            width: 45px;
+            height: 45px;
+            border: 2px solid var(--accent-cyan);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(0, 243, 255, 0.3), inset 0 0 10px rgba(0, 243, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-box::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            animation: shine 3s infinite linear;
+        }
+
+        @keyframes shine {
+            0% {
+                transform: translate(-100%, -100%) rotate(45deg);
+            }
+
+            100% {
+                transform: translate(100%, 100%) rotate(45deg);
+            }
+        }
+
+        .logo-text h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.4rem;
+            letter-spacing: 3px;
+            font-weight: 700;
+            color: var(--accent-cyan);
+            text-shadow: 0 0 10px rgba(0, 243, 255, 0.7);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .logo-text h1::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(0, 243, 255, 0.4), transparent);
+            animation: textScan 4s infinite;
+        }
+
+        @keyframes textScan {
+            0% {
+                left: -100%;
+            }
+
+            50%,
+            100% {
+                left: 100%;
+            }
+        }
+
+        main {
+            padding: 24px;
+            flex-grow: 1;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 992px) {
+            main {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .col-span-2 {
+                grid-column: span 2;
+            }
+
+            .span-full {
+                grid-column: 1 / -1;
+            }
+        }
+
+        #dashboard-view {
+            display: block;
+            opacity: 1;
+            transition: opacity 1s;
+        }
+
+        .card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: var(--panel-shadow);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), border-color 0.3s;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            border-color: rgba(0, 243, 255, 0.3);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+            opacity: 0.5;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            color: var(--secondary-cyan);
+            letter-spacing: 2px;
+            font-weight: 700;
+        }
+
+        .profile-card .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .profile-img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            border: 1px solid var(--accent-cyan);
+            background: rgba(0, 243, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .rank-badge {
+            background: var(--accent-gold);
+            color: black;
+            font-size: 0.6rem;
+            font-family: 'Orbitron';
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: bold;
+            margin-top: 5px;
+            display: inline-block;
+        }
+
+        .weather-node {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .temp-display {
+            font-family: 'Orbitron';
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: var(--accent-cyan);
+        }
+
+        .diag-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .diag-item {
+            padding: 12px;
+            background: rgba(128, 128, 128, 0.03);
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .status-ok {
+            color: var(--accent-green);
+            text-shadow: 0 0 5px var(--accent-green);
+        }
+
+        .telemetry-node {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .telemetry-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+        }
+
+        .label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .value {
+            font-family: 'Orbitron';
+            font-size: 1rem;
+            color: var(--accent-cyan);
+        }
+
+        .bar-container {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease-in-out;
+            background: linear-gradient(90deg, var(--secondary-cyan), var(--accent-cyan));
+            box-shadow: 0 0 10px var(--accent-cyan);
+        }
+
+        .map-viewport {
+            width: 100%;
+            height: 140px;
+            background: rgba(0, 0, 0, 0.4);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(0, 243, 255, 0.1);
+        }
+
+        .grid-overlay {
+            width: 200%;
+            height: 200%;
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+            transform: perspective(100px) rotateX(45deg);
+            animation: mapScan 12s linear infinite;
+        }
+
+        @keyframes mapScan {
+            0% {
+                transform: perspective(100px) rotateX(45deg) translateY(0);
+            }
+
+            100% {
+                transform: perspective(100px) rotateX(45deg) translateY(20px);
+            }
+        }
+
+        .blip {
+            width: 10px;
+            height: 10px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 10px var(--accent-cyan);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(3);
+                opacity: 0;
+            }
+        }
+
+        .log-viewport {
+            max-height: 180px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .log-item {
+            display: flex;
+            padding: 10px 14px;
+            background: rgba(255, 255, 255, 0.01);
+            border-left: 3px solid var(--accent-cyan);
+            font-size: 0.8rem;
+            animation: logEntry 0.4s ease-out;
+        }
+
+        @keyframes logEntry {
+            from {
+                opacity: 0;
+                transform: translateX(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .timestamp {
+            color: #555;
+            margin-right: 12px;
+            font-family: 'Orbitron';
+            font-size: 0.65rem;
+        }
+
+        .emergency-btn {
+            width: 100%;
+            padding: 18px;
+            background: var(--accent-red);
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-family: 'Orbitron';
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            cursor: pointer;
+            box-shadow: var(--emergency-glow);
+            transition: all 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+
+        .speed-gauge {
+            width: 140px;
+            height: 140px;
+            position: relative;
+            margin: 0 auto;
+        }
+
+        .gauge-svg {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-bg {
+            fill: none;
+            stroke: var(--glass-border);
+            stroke-width: 8;
+        }
+
+        .gauge-fill {
+            fill: none;
+            stroke: var(--accent-cyan);
+            stroke-width: 8;
+            stroke-dasharray: 314;
+            stroke-dashoffset: 314;
+            transition: stroke-dashoffset 0.5s ease;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 5px var(--accent-cyan));
+        }
+
+        .speed-value {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .speed-num {
+            font-family: 'Orbitron';
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+
+        .speed-unit {
+            font-size: 0.6rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .nav-direction {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            padding: 15px;
+            background: rgba(0, 112, 128, 0.05);
+            border-radius: 16px;
+            border: 1px solid rgba(0, 112, 128, 0.1);
+        }
+
+        .nav-icon {
+            width: 40px;
+            height: 40px;
+            color: var(--accent-cyan);
+            animation: pulse-nav 2s infinite;
+        }
+
+        @keyframes pulse-nav {
+            0% {
+                opacity: 0.6;
+                transform: scale(0.95);
+            }
+
+            50% {
+                opacity: 1;
+                transform: scale(1.05);
+            }
+
+            100% {
+                opacity: 0.6;
+                transform: scale(0.95);
+            }
+        }
+
+        .voice-visualizer {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            height: 40px;
+        }
+
+        .voice-bar {
+            width: 3px;
+            background: var(--accent-cyan);
+            border-radius: 2px;
+            animation: voice-pulse 1s var(--delay) infinite;
+        }
+
+        @keyframes voice-pulse {
+
+            0%,
+            100% {
+                height: 5px;
+                opacity: 0.3;
+            }
+
+            50% {
+                height: 25px;
+                opacity: 1;
+            }
+        }
+
+        .comms-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            background: rgba(255, 0, 68, 0.1);
+            color: var(--accent-red);
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-family: 'Orbitron';
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .comms-message {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 12px;
+            border-radius: 12px;
+            border-left: 3px solid var(--accent-gold);
+            margin-top: 10px;
+            font-size: 0.75rem;
+        }
+
+        /* Tactical Guide Overlay */
+        .guide-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 15, 20, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 3000;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.4s;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .guide-overlay.active {
+            opacity: 1;
+        }
+
+        .guide-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--accent-cyan);
+            border-radius: 32px;
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+            box-shadow: 0 0 80px rgba(0, 243, 255, 0.15);
+            animation: guideSlide 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @keyframes guideSlide {
+            from {
+                transform: scale(0.9) translateY(30px);
+                opacity: 0;
+            }
+
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .guide-panel h2 {
+            font-family: 'Orbitron';
+            color: var(--accent-cyan);
+            font-size: 1.2rem;
+            letter-spacing: 4px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+
+        .guide-item {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(0, 112, 128, 0.03);
+            border-radius: 12px;
+            border-left: 3px solid var(--accent-gold);
+        }
+
+        .guide-item strong {
+            display: block;
+            font-family: 'Orbitron';
+            font-size: 0.65rem;
+            color: var(--accent-gold);
+            margin-bottom: 5px;
+            letter-spacing: 1px;
+        }
+
+        .guide-item p {
+            font-size: 0.85rem;
+            color: var(--text-main);
+            line-height: 1.4;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Login Portal -->
+
+
+    <!-- Main Dashboard View -->
+    <div id="dashboard-view">
+        <header>
+            <div class="logo-container">
+                <div class="logo-box">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>RAKSHAK HUD</h1>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px;">
+                <div id="connection-status" style="display: flex; align-items: center;">
+                    <div class="indicator-dot active-dot"></div>
+                    <span style="font-size: 0.75rem; color: var(--accent-green); font-family: 'Orbitron';">LINK
+                        ACTIVE</span>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <!-- User Profile Card -->
+            <div class="card profile-card">
+                <div class="section-header">
+                    <div class="section-title">Operator Bio</div>
+                </div>
+                <div class="profile-header">
+                    <div class="profile-img">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-cyan)"
+                            stroke-width="2">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <div>
+                        <div style="font-family: 'Orbitron'; font-size: 0.9rem; color: var(--text-main);">Rakshak-01
+                        </div>
+                        <span class="rank-badge">ELITE RECON</span>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; grid-template-columns: 1fr 1fr; display: grid; gap: 10px;">
+                    <div
+                        style="text-align: center; background: rgba(128,128,128,0.03); padding: 8px; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <div style="font-size: 0.55rem; color: var(--text-muted);">STREAK</div>
+                        <div style="font-size: 0.8rem; color: var(--accent-gold); font-family: 'Orbitron';">12 DAYS
+                        </div>
+                    </div>
+                    <div
+                        style="text-align: center; background: rgba(128,128,128,0.03); padding: 8px; border-radius: 12px; border: 1px solid var(--glass-border);">
+                        <div style="font-size: 0.55rem; color: var(--text-muted);">HEALTH</div>
+                        <div style="font-size: 0.8rem; color: var(--accent-green); font-family: 'Orbitron';">98%</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Telemetry Central -->
+            <div class="card col-span-2">
+                <div class="section-header">
+                    <div class="section-title">System Telemetry</div>
+                    <div style="font-size: 0.6rem; color: var(--accent-cyan); font-family: 'Orbitron';">SYNC: 120Hz
+                    </div>
+                </div>
+                <div class="telemetry-node">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px;">
+                        <!-- Left Side: Circular Speedometer -->
+                        <div class="card" style="margin: 0; background: rgba(0, 112, 128, 0.05); padding: 15px;">
+                            <div class="speed-gauge">
+                                <svg class="gauge-svg" width="140" height="140">
+                                    <circle class="gauge-bg" cx="70" cy="70" r="50"></circle>
+                                    <circle class="gauge-fill" id="gauge-speed" cx="70" cy="70" r="50"></circle>
+                                </svg>
+                                <div class="speed-value">
+                                    <div class="speed-num" id="val-speed">0</div>
+                                    <div class="speed-unit">km/h</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Existing Telemetry Bars -->
+                        <div style="display: flex; flex-direction: column; gap: 12px; justify-content: center;">
+                            <div>
+                                <div class="telemetry-row">
+                                    <span class="label">BAT</span>
+                                    <span class="value" id="val-bat">--%</span>
+                                </div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar-bat"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="telemetry-row">
+                                    <span class="label">TEMP</span>
+                                    <span class="value" id="val-temp">--°C</span>
+                                </div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar-temp"
+                                        style="background: linear-gradient(90deg, #00ffaa, #ffcc00);"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="telemetry-row">
+                                    <span class="label">CPU</span>
+                                    <span class="value" id="val-cpu">--%</span>
+                                </div>
+                                <div class="bar-container">
+                                    <div class="bar-fill" id="bar-cpu"
+                                        style="background: linear-gradient(90deg, #009db3, #00f3ff);"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tactical Map & Navigation -->
+            <div class="card col-span-2">
+                <div class="section-header">
+                    <div class="section-title">Tactical Overlay & Nav</div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                    <div class="map-viewport">
+                        <div class="grid-overlay"></div>
+                        <div class="blip"></div>
+                        <div
+                            style="position: absolute; bottom: 10px; left: 10px; font-size: 0.6rem; color: var(--accent-cyan); font-family: 'Orbitron';">
+                            Sector 7-G | Active
+                        </div>
+                    </div>
+                    <div class="nav-direction">
+                        <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                        </svg>
+                        <div>
+                            <div style="font-family: 'Orbitron'; font-size: 0.8rem; color: var(--accent-cyan);">TURN
+                                LEFT</div>
+                            <div style="font-size: 0.6rem; color: var(--text-muted);">IN 450 METERS</div>
+                            <div style="margin-top: 5px; font-family: 'Orbitron'; font-size: 1rem; color: var(--accent-gold);"
+                                id="val-dist">1.2 KM</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Environment Sensor -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-title">Environment HUD</div>
+                </div>
+                <div class="weather-node">
+                    <div class="temp-display" id="val-env-temp">24°</div>
+                    <div style="text-align: right;">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--accent-gold)"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="5"></circle>
+                            <line x1="12" y1="1" x2="12" y2="3"></line>
+                            <line x1="12" y1="21" x2="12" y2="23"></line>
+                            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                        </svg>
+                        <div style="font-size: 0.65rem; color: var(--text-muted); font-family: 'Orbitron';">CLEAR SKIES
+                        </div>
+                    </div>
+                </div>
+                <div
+                    style="margin-top: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.65rem; color: #666;">
+                    <div style="padding: 10px; background: rgba(128,128,128,0.03); border-radius: 8px;">
+                        UV INDEX<br><span style="color: var(--accent-cyan);">LOW</span>
+                    </div>
+                    <div style="padding: 10px; background: rgba(128,128,128,0.03); border-radius: 8px;">
+                        HUMIDITY<br><span style="color: var(--accent-cyan);">45%</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diagnostics -->
+            <div class="card col-span-2">
+                <div class="section-header">
+                    <div class="section-title">System Health Diagnostics</div>
+                </div>
+                <div class="diag-grid">
+                    <div class="diag-item">
+                        <span class="label">NEURAL LINK</span>
+                        <span class="status-ok">CONNECTED</span>
+                    </div>
+                    <div class="diag-item">
+                        <span class="label">SENSORS</span>
+                        <span class="status-ok">OPTIMAL</span>
+                    </div>
+                    <div class="diag-item">
+                        <span class="label">GPS MODULE</span>
+                        <span class="status-ok">LOCKED</span>
+                    </div>
+                    <div class="diag-item">
+                        <span class="label">HUD CORE</span>
+                        <span class="status-ok">ACTIVE</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Protocol Zero -->
+            <div class="card emergency-card">
+                <div class="section-header">
+                    <div class="section-title" style="color: var(--accent-red);">Protocol Zero</div>
+                </div>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.5;">
+                    Localized emergency broadcast. Requires authorization for full grid signal.
+                </p>
+                <button class="emergency-btn" onclick="triggerPlay(1)">Broadcast SOS</button>
+            </div>
+
+            <!-- External Comms & Neural Link -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-title">External Comms</div>
+                </div>
+                <div class="comms-badge" id="comms-badge">
+                    <span class="indicator-dot active-dot" style="width: 6px; height: 6px; margin-right: 6px;"></span>
+                    INCOMING: DISPATCH
+                </div>
+                <div class="comms-message" id="comms-msg-text">
+                    "Rakshak-01, proceed to extraction point. Eta 5 mins."
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 15px;">
+                    <button onclick="triggerPlay(2)"
+                        style="padding: 12px; background: rgba(0, 243, 255, 0.05); border: 1px solid var(--accent-cyan); color: var(--accent-cyan); border-radius: 12px; font-family: 'Orbitron'; font-size: 0.7rem; cursor: pointer;">
+                        REPORT
+                    </button>
+                    <button onclick="triggerPlay(3)"
+                        style="padding: 12px; border: 1px solid var(--glass-border); background: transparent; color: var(--text-main); border-radius: 12px; font-family: 'Orbitron'; font-size: 0.7rem; cursor: pointer;">
+                        GUIDE
+                    </button>
+                </div>
+            </div>
+
+            <!-- Neural / Voice Assistant -->
+            <div class="card">
+                <div class="section-header">
+                    <div class="section-title">Neural Assistant</div>
+                </div>
+                <div class="voice-visualizer">
+                    <div class="voice-bar" style="--delay: 0s"></div>
+                    <div class="voice-bar" style="--delay: 0.2s"></div>
+                    <div class="voice-bar" style="--delay: 0.4s"></div>
+                    <div class="voice-bar" style="--delay: 0.1s"></div>
+                    <div class="voice-bar" style="--delay: 0.3s"></div>
+                    <div class="voice-bar" style="--delay: 0.5s"></div>
+                    <div class="voice-bar" style="--delay: 0.2s"></div>
+                </div>
+                <div
+                    style="text-align: center; margin-top: 10px; font-size: 0.65rem; color: var(--text-muted); font-family: 'Orbitron';">
+                    LISTENING...
+                </div>
+            </div>
+
+            <!-- Systems Log -->
+            <div class="card span-full">
+                <div class="section-header">
+                    <div class="section-title">Rakshak Mission Logs</div>
+                    <div style="font-size: 0.6rem; color: #555;">BUFFER: 1024KB</div>
+                </div>
+                <div class="log-viewport" id="log-container">
+                    <!-- Logs will be automatically prepended -->
+                </div>
+            </div>
+        </main>
+
+        <script>
+            // Global State
+            let battery = 92;
+            let temp = 34.2;
+            let envTemp = 24;
+            let speed = 0;
+            let distance = 1.2;
+            let lastSpeedSent = false;
+            let lastBatSent = false;
+            let simulationInterval = null;
+
+
+
+
+            function addLog(msg) {
+                const container = document.getElementById('log-container');
+                if (!container) return;
+                const item = document.createElement('div');
+                item.className = 'log-item';
+                const now = new Date();
+                const time = now.getHours().toString().padStart(2, '0') + ":" +
+                    now.getMinutes().toString().padStart(2, '0') + ":" +
+                    now.getSeconds().toString().padStart(2, '0');
+                item.innerHTML = `<span class="timestamp">[${time}]</span><span class="message">${msg}</span>`;
+                container.prepend(item);
+
+                if (container.children.length > 20) {
+                    container.removeChild(container.lastChild);
+                }
+            }
+
+            function closeGuide() {
+                const guide = document.getElementById('guide-overlay');
+                if (guide) {
+                    guide.classList.remove('active');
+                    setTimeout(() => guide.style.display = 'none', 400);
+                }
+            }
+
+
+
+
+
+            async function triggerPlay(trackId) {
+                const tracks = {
+                    1: { name: 'SOS BROADCAST', msg: "EMERGENCY: SOS SIGNAL BROADCASTING ON ALL CHANNELS", badge: "CRITICAL ALERT" },
+                    2: { name: 'STATUS REPORT', msg: "STATUS: All systems nominal. Fuel reserves at 88%.", badge: "SYSTEM REPORT" },
+                    3: { name: 'SAFETY GUIDE', msg: "GUIDE: Stay low and maintain visual on Sector 7-G extraction.", badge: "GUIDE ACTIVE" }
+                };
+
+                const track = tracks[trackId] || { name: 'NOTIFICATION', msg: 'Processing...', badge: 'STATUS UPD' };
+                addLog(`INIT: ${track.name}`);
+
+                // Immediate UI Feedback
+                const badge = document.getElementById('comms-badge');
+                const msgText = document.getElementById('comms-msg-text');
+                if (badge) {
+                    badge.innerHTML = `<span class="indicator-dot active-dot" style="width: 6px; height: 6px; margin-right: 6px;"></span>${track.badge}`;
+                }
+                if (msgText) {
+                    msgText.innerText = `"${track.msg}"`;
+                }
+
+                if (trackId === 1) {
+                    document.body.style.boxShadow = 'inset 0 0 100px rgba(255, 0, 68, 0.4)';
+                    setTimeout(() => document.body.style.boxShadow = 'none', 1000);
+                }
+
+                if (trackId === 3) {
+                    const guide = document.getElementById('guide-overlay');
+                    if (guide) {
+                        guide.style.display = 'flex';
+                        setTimeout(() => guide.classList.add('active'), 10);
+                    }
+                }
+
+                // Simulated confirmation
+                setTimeout(() => {
+                    addLog(`SIGNAL: ${track.name} — Datalink handshake verified`);
+                }, 300);
+            }
+
+            function updateSimulation() {
+                try {
+                    // Simulation math
+                    battery -= 0.005;
+                    if (battery < 5) battery = 100;
+
+                    temp += (Math.random() - 0.5) * 0.1;
+                    envTemp += (Math.random() - 0.5) * 0.05;
+
+                    speed += (Math.random() - 0.45) * 3;
+                    if (speed < 0) speed = 0;
+                    if (speed > 120) speed = 120;
+
+                    distance -= 0.002;
+                    if (distance < 0.1) distance = 5.0;
+
+                    const cpu = 15 + Math.floor(Math.random() * 8);
+
+                    // Update DOM Elements
+                    const els = {
+                        batVal: document.getElementById('val-bat'),
+                        batBar: document.getElementById('bar-bat'),
+                        tempVal: document.getElementById('val-temp'),
+                        tempBar: document.getElementById('bar-temp'),
+                        cpuVal: document.getElementById('val-cpu'),
+                        cpuBar: document.getElementById('bar-cpu'),
+                        envTemp: document.getElementById('val-env-temp'),
+                        speedVal: document.getElementById('val-speed'),
+                        speedGauge: document.getElementById('gauge-speed'),
+                        distVal: document.getElementById('val-dist'),
+                        blip: document.querySelector('.blip')
+                    };
+
+                    if (els.batVal) els.batVal.innerText = Math.floor(battery) + '%';
+                    if (els.batBar) {
+                        els.batBar.style.width = battery + '%';
+                        els.batBar.style.background = (battery < 20) ? 'var(--accent-red)' : 'linear-gradient(90deg, var(--secondary-cyan), var(--accent-cyan))';
+                    }
+
+                    if (els.tempVal) els.tempVal.innerText = temp.toFixed(1) + '°';
+                    if (els.tempBar) els.tempBar.style.width = ((temp - 20) / 30 * 100) + '%';
+
+                    if (els.cpuVal) els.cpuVal.innerText = cpu + '%';
+                    if (els.cpuBar) els.cpuBar.style.width = cpu + '%';
+
+                    if (els.envTemp) els.envTemp.innerText = Math.floor(envTemp) + '°';
+
+                    if (els.speedVal) els.speedVal.innerText = Math.floor(speed);
+                    if (els.speedGauge) {
+                        els.speedGauge.style.strokeDashoffset = 314 - (speed / 120 * 314);
+                    }
+
+                    if (els.distVal) els.distVal.innerText = distance.toFixed(2) + ' KM';
+
+                    if (els.blip) {
+                        const x = 50 + (Math.random() - 0.5) * 10;
+                        const y = 50 + (Math.random() - 0.5) * 10;
+                        els.blip.style.left = x + '%';
+                        els.blip.style.top = y + '%';
+                    }
+
+                    // Alerts
+                    if (speed > 100 && !lastSpeedSent) {
+                        addLog("ALERT: High Speed Threshold Exceeded");
+                        lastSpeedSent = true;
+                    } else if (speed < 100) lastSpeedSent = false;
+
+                    if (battery < 20 && !lastBatSent) {
+                        addLog("CRITICAL: Battery Level Low");
+                        lastBatSent = true;
+                    }
+
+                } catch (e) { }
+            }
+
+            // Start everything
+            window.onload = function () {
+                if (!simulationInterval) {
+                    simulationInterval = setInterval(updateSimulation, 500);
+                }
+                addLog("SYSTEM: Rakshak Neural Handshake Initialized");
+                addLog("Datalink: Secure Sector 7-G established");
+            };
+        </script>
+        <!-- PWA Service Worker Registration -->
+        <script>
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(reg => console.log('[RAKSHAK] Service Worker registered:', reg.scope))
+                    .catch(err => console.error('[RAKSHAK] SW registration failed:', err));
+            }
+        </script>
+</body>
+
+</html>

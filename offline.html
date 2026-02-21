@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAKSHAK OS | UPLINK LOST</title>
+    <meta name="theme-color" content="#007080">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --accent-cyan: #007080;
+            --accent-red: #d90033;
+            --bg-deep: #f0f4f8;
+            --text-main: #0a111a;
+            --glass-border: rgba(0, 112, 128, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Share Tech Mono', monospace;
+            height: 100vh;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+
+        .background-fx {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background:
+                radial-gradient(circle at 50% 50%, rgba(217, 0, 51, 0.04) 0%, transparent 70%),
+                repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.02) 1px, transparent 2px);
+            background-size: 100% 100%, 100% 4px;
+            z-index: 1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            padding: 40px;
+        }
+
+        .signal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 30px;
+            position: relative;
+        }
+
+        .signal-icon::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 20px;
+            height: 20px;
+            background: var(--accent-red);
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(217, 0, 51, 0.5);
+            animation: pulse-dot 2s infinite;
+        }
+
+        .signal-icon::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 60px;
+            height: 60px;
+            border: 2px solid var(--accent-red);
+            border-radius: 50%;
+            opacity: 0;
+            animation: pulse-ring 2s infinite;
+        }
+
+        @keyframes pulse-dot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.4;
+            }
+        }
+
+        @keyframes pulse-ring {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translate(-50%, -50%) scale(1.5);
+                opacity: 0;
+            }
+        }
+
+        .error-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2rem;
+            letter-spacing: 8px;
+            color: var(--accent-red);
+            margin-bottom: 15px;
+            animation: flicker 3s infinite;
+        }
+
+        .error-subtitle {
+            font-size: 0.85rem;
+            letter-spacing: 3px;
+            color: rgba(10, 17, 26, 0.5);
+            text-transform: uppercase;
+            margin-bottom: 15px;
+        }
+
+        .error-detail {
+            font-size: 0.75rem;
+            color: rgba(10, 17, 26, 0.4);
+            margin-bottom: 50px;
+            line-height: 1.8;
+        }
+
+        .retry-btn {
+            background: transparent;
+            border: 2px solid var(--accent-cyan);
+            color: var(--accent-cyan);
+            padding: 18px 45px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1rem;
+            letter-spacing: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s;
+            clip-path: polygon(8% 0, 100% 0, 92% 100%, 0% 100%);
+            font-weight: bold;
+        }
+
+        .retry-btn:hover {
+            background: var(--accent-cyan);
+            color: white;
+            box-shadow: 0 8px 25px rgba(0, 112, 128, 0.3);
+            transform: scale(1.05);
+        }
+
+        .retry-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+
+        .retry-btn:hover::after {
+            left: 100%;
+        }
+
+        .status-grid {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 20px;
+            font-size: 0.65rem;
+            opacity: 0.5;
+            color: var(--accent-red);
+        }
+
+        .status-item {
+            border-top: 1px solid rgba(217, 0, 51, 0.2);
+            padding-top: 10px;
+        }
+
+        @keyframes flicker {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            92% {
+                opacity: 1;
+            }
+
+            93% {
+                opacity: 0.6;
+            }
+
+            94% {
+                opacity: 1;
+            }
+
+            95% {
+                opacity: 0.7;
+            }
+
+            96% {
+                opacity: 1;
+            }
+        }
+
+        .overlay-text {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            font-size: 0.6rem;
+            color: rgba(10, 17, 26, 0.25);
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="background-fx"></div>
+
+    <div class="container">
+        <div class="signal-icon"></div>
+        <h1 class="error-title">UPLINK LOST</h1>
+        <p class="error-subtitle">Neural Mesh Connection Severed</p>
+        <p class="error-detail">
+            DIAGNOSTIC: Network interface offline.<br>
+            All tactical streams suspended.<br>
+            Reconnect to restore operational status.
+        </p>
+
+        <button class="retry-btn" onclick="attemptReconnect()">RECONNECT</button>
+
+        <div class="status-grid">
+            <div class="status-item">NET: OFFLINE</div>
+            <div class="status-item">MESH: SEVERED</div>
+            <div class="status-item">SYNC: HALTED</div>
+        </div>
+    </div>
+
+    <div class="overlay-text">RAKSHAK_OS v4.5.1 | FAILSAFE MODE</div>
+
+    <script>
+        function attemptReconnect() {
+            const btn = document.querySelector('.retry-btn');
+            btn.innerText = 'SCANNING...';
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+
+            setTimeout(() => {
+                if (navigator.onLine) {
+                    window.location.reload();
+                } else {
+                    btn.innerText = 'NO SIGNAL';
+                    btn.style.borderColor = 'var(--accent-red)';
+                    btn.style.color = 'var(--accent-red)';
+                    setTimeout(() => {
+                        btn.innerText = 'RECONNECT';
+                        btn.disabled = false;
+                        btn.style.opacity = '1';
+                        btn.style.borderColor = 'var(--accent-cyan)';
+                        btn.style.color = 'var(--accent-cyan)';
+                    }, 2000);
+                }
+            }, 2000);
+        }
+
+        // Auto-reconnect when network comes back
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+    </script>
+</body>
+
+</html>
